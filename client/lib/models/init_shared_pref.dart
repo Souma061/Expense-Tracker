@@ -104,10 +104,7 @@ class InitSheredPref {
 
   /// set and get last logout date
   Future<void> setLastLogoutDate() async {
-    await _prefs?.setString(
-      "last_logout_date",
-      DateTime.now().toIso8601String(),
-    );
+    await _prefs?.setString("last_logout_date", DateTime.now().toIso8601String());
   }
 
   Future<String?> getLastLogoutDate() async {
