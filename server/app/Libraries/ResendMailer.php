@@ -18,13 +18,16 @@ class ResendMailer
     private string $fromEmail;
     private string $fromName;
 
-    public function __construct()
-    {
-        $this->apiKey    = env('RESEND_API_KEY', '');
-        $this->fromEmail = env('RESEND_FROM_EMAIL', 'no-reply@yourdomain.com');
-        $this->fromName  = env('RESEND_FROM_NAME', 'Expense Tracker');
-    }
+  public function __construct()
+{
+    $this->apiKey    = env('RESEND_API_KEY', '');
+    $this->fromEmail = env('RESEND_FROM_EMAIL', 'onboarding@resend.dev');
+    $this->fromName  = env('RESEND_FROM_NAME', 'Expense Tracker');
 
+    // TEMP DEBUG — remove after fixing
+    log_message('debug', '[ResendMailer] apiKey=' . substr($this->apiKey, 0, 10) . '...');
+    log_message('debug', '[ResendMailer] from=' . $this->fromEmail);
+}
     /**
      * Send an OTP verification email.
      *
@@ -64,6 +67,7 @@ class ResendMailer
                 'Authorization: Bearer ' . $this->apiKey,
             ],
             CURLOPT_TIMEOUT        => 10,
+              CURLOPT_SSL_VERIFYPEER => false,
         ]);
 
         $response = curl_exec($ch);

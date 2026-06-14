@@ -181,6 +181,7 @@ class _IncomepageState extends State<Incomepage> {
                     amount: double.tryParse(amountController.text) ?? 0.0,
                     isExpense: false,
                     currencySymbol: selectedCurrency.symbol,
+                    date: DateTime.now(),
                   );
                   FocusScope.of(context).unfocus();
                   formKey.currentState!.reset();

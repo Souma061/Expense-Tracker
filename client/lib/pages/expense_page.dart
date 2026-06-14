@@ -186,6 +186,7 @@ class _ExpensepageState extends State<Expensepage> {
                     amount: double.tryParse(amountController.text) ?? 0.0,
                     isExpense: true,
                     currencySymbol: selectedCurrency.symbol,
+                    date: DateTime.now(),
                   );
                   formKey.currentState!.reset();
                   FocusScope.of(context).unfocus();
