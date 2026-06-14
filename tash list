@@ -1,0 +1,10 @@
+.vscode/settings.json
+client/lib/apis/auth_services.dart
+client/lib/main.dart
+client/lib/pages/expense_page.dart
+client/lib/pages/income_page.dart
+client/lib/screens/home_screen.dart
+client/lib/screens/login_screen.dart
+client/lib/screens/register_screen.dart
+client/pubspec.lock
+client/pubspec.yaml

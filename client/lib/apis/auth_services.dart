@@ -8,6 +8,10 @@ import 'package:http/http.dart' as http;
 class AuthServices {
   static const baseUrl = "${AppConfig.baseUrl}/auth";
 
+  // ── POST /auth/register ─────────────────────────────────────────────────
+  // On success, returns { success: true, email: '...' }.
+  // A JWT is NOT issued here — it is issued only after OTP verification.
+
   static Future<Map<String, dynamic>> register({
     required String first_name,
     required String last_name,
@@ -31,9 +35,8 @@ class AuthServices {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final token = data['data']?['token'] as String?;
-        if (token != null) await InitSheredPref.instance.setToken(token);
 
+        // Store email + name in shared prefs so they're available after OTP
         await InitSheredPref.instance.setProfileEmail(email);
         await InitSheredPref.instance.setProfileName(
           '$first_name $last_name'.trim(),
@@ -52,6 +55,69 @@ class AuthServices {
       return {'success': false, 'message': e.toString()};
     }
   }
+
+  // ── POST /auth/verify-otp ───────────────────────────────────────────────
+  // Verifies the 6-digit OTP entered by the user.
+  // On success, stores the JWT and returns { success: true }.
+
+  static Future<Map<String, dynamic>> getVerification(
+    String otp,
+    String email,
+  ) async {
+    try {
+      final url = Uri.parse("$baseUrl/verify-otp");
+      final response = await http
+          .post(
+            url,
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode({'email': email, 'otp': otp}),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final token = data['data']?['token'] as String?;
+        if (token != null) await InitSheredPref.instance.setToken(token);
+      }
+
+      return data;
+    } on TimeoutException {
+      return {
+        'success': false,
+        'message': 'Server is taking too long. Please try again later.',
+      };
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  // ── POST /auth/resend-otp ───────────────────────────────────────────────
+  // Requests a fresh OTP to be sent to the given email.
+
+  static Future<Map<String, dynamic>> resendOtp(String email) async {
+    try {
+      final url = Uri.parse("$baseUrl/resend-otp");
+      final response = await http
+          .post(
+            url,
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode({'email': email}),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } on TimeoutException {
+      return {
+        'success': false,
+        'message': 'Server is taking too long. Please try again later.',
+      };
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  // ── POST /auth/login ────────────────────────────────────────────────────
 
   static Future<Map<String, dynamic>> login({
     required String email,

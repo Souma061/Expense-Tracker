@@ -19,7 +19,7 @@ class OtpScreen extends StatefulWidget {
 class _OtpScreenState extends State<OtpScreen>
     with SingleTickerProviderStateMixin {
   static const int _otpLength = 6; // Length of the OTP code
-  static const int _timerSeconds = 10; // 5 minutes in seconds
+  static const int _timerSeconds = 300; // 5 minutes in seconds
   late final List<TextEditingController> _controllers;
   late final List<FocusNode> _focusNodes;
   late final AnimationController _errorAnimationController;
@@ -279,8 +279,7 @@ class _OtpScreenState extends State<OtpScreen>
   Future<void> _verifyOtp() async {
     FocusScope.of(context).unfocus();
     _showLoadingDialog(context);
-    final response = await AuthServices.getVerification(_otpCode);
-    print("response: $response");
+    final response = await AuthServices.getVerification(_otpCode, widget.email);
     if (!mounted) return;
     Navigator.of(context).pop();
     final isSuccess = response['success'] ?? false; // Close the loading dialog
@@ -296,8 +295,6 @@ class _OtpScreenState extends State<OtpScreen>
       );
     }
   }
-
-  /// 902321 otp
   void _showLoadingDialog(BuildContext context) {
     showDialog(
       barrierDismissible: false,
@@ -324,6 +321,7 @@ class _OtpScreenState extends State<OtpScreen>
 
   void _resendOtp() {
     _startTimer();
+    AuthServices.resendOtp(widget.email);
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

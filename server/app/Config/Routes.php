@@ -15,9 +15,11 @@ $routes->addPlaceholder('uuid', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}
 $routes->group('api/v1', ['namespace' => 'App\Controllers\Api', 'filter' => 'cors'], function ($routes) {
 
     // ── Auth (public) ──────────────────────────────────────────────────────
-    $routes->post('auth/register', 'AuthController::register');
-    $routes->post('auth/login',    'AuthController::login');
-    $routes->get('auth/me',        'AuthController::me',        ['filter' => 'jwt']);
+    $routes->post('auth/register',   'AuthController::register');
+    $routes->post('auth/login',      'AuthController::login');
+    $routes->post('auth/verify-otp', 'AuthController::verifyOtp');
+    $routes->post('auth/resend-otp', 'AuthController::resendOtp');
+    $routes->get('auth/me',          'AuthController::me', ['filter' => 'jwt']);
 
     // ── Sync (requires JWT) ────────────────────────────────────────────────
     $routes->post('sync', 'SyncController::sync', ['filter' => 'jwt']);

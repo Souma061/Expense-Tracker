@@ -1,7 +1,7 @@
 import 'package:expense_tracker/apis/auth_services.dart';
 import 'package:expense_tracker/core/validators/validator.dart';
-import 'package:expense_tracker/screens/hidden_drawer.dart';
 import 'package:expense_tracker/screens/login_screen.dart';
+import 'package:expense_tracker/screens/otp_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -193,7 +193,7 @@ class _RegisterscreenState extends State<Registerscreen> {
     final lastName = lastNameController.text.trim();
 
     _showLoadingDialog(context);
-    final success = await AuthServices.register(
+    final result = await AuthServices.register(
       email: email,
       password: password,
       first_name: firstName,
@@ -203,11 +203,11 @@ class _RegisterscreenState extends State<Registerscreen> {
     if (!mounted) return;
 
     Navigator.pop(context);
-    if (success['success'] == true) {
-      _nextScreen();
+    if (result['success'] == true) {
+      _nextScreen(email);
     } else {
       _showerror(
-        success['message'] ?? success['error'] ?? 'Registration failed',
+        result['message'] ?? result['error'] ?? 'Registration failed',
       );
     }
     formKey.currentState!.reset();
@@ -235,12 +235,12 @@ class _RegisterscreenState extends State<Registerscreen> {
     );
   }
 
-  void _nextScreen() {
+  void _nextScreen(String email) {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) {
-          return Hiddendrawer();
+          return OtpScreen(email: email);
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(
