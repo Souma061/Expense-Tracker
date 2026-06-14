@@ -78,7 +78,7 @@ class _MyAppState extends State<MyApp> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     return ScreenUtilInit(
-      designSize:  Size(width, height),
+      designSize: Size(width, height),
       minTextAdapt: true,
       splitScreenMode: true,
       child: MaterialApp(

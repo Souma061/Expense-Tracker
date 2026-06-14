@@ -98,4 +98,23 @@ class AuthServices {
       return {'success': false, 'message': e.toString()};
     }
   }
+
+  static Future<Map<String, dynamic>> getVerification(String otp) async {
+    await Future.delayed(const Duration(seconds: 3));
+    try {
+      const code = "123456"; // Simulated OTP for testing
+      if (otp == code) {
+        return {'success': true, 'message': 'OTP verified successfully.'};
+      } else {
+        return {'success': false, 'message': 'Invalid OTP. Please try again.'};
+      }
+    } on TimeoutException {
+      return {
+        'success': false,
+        'message': 'Server is taking too long. Please try again later.',
+      };
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
+  }
 }

@@ -25,9 +25,9 @@ class Homescreen extends StatefulWidget {
 
 class _HomescreenState extends State<Homescreen> {
   final now = DateTime.now();
+  DateTime selectedDate = DateTime.now();
   String time = '';
   String get _currentMonth => DateFormat('yyyy-MM').format(DateTime.now());
-  String? _selectedDate;
 
   @override
   void initState() {
@@ -83,7 +83,6 @@ class _HomescreenState extends State<Homescreen> {
           strokeWidth: 3,
           onRefresh: () async {
             setState(() {
-              _selectedDate = null;
               time = DateFormat('dd MMM yyyy').format(now);
             });
             await chartProvider.searchByMonth(_currentMonth);
@@ -124,7 +123,9 @@ class _HomescreenState extends State<Homescreen> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const ProfileScreen(),
+                        ),
                       );
                     },
                     child: CircleAvatar(
@@ -192,7 +193,10 @@ class _HomescreenState extends State<Homescreen> {
                         height: 319,
                         width: double.infinity,
                         child: TabBarView(
-                          children: [const Incomepage(), const Expensepage()],
+                          children: [
+                            Incomepage(dateTime: selectedDate),
+                            Expensepage(dateTime: selectedDate),
+                          ],
                         ),
                       ),
 
@@ -370,11 +374,7 @@ class _HomescreenState extends State<Homescreen> {
 
                       // Recent list with swipe-to-delete
                       _RecentTransactionList(
-                        list: _selectedDate != null
-                            ? chartProvider.list
-                                  .where((e) => e.date == _selectedDate)
-                                  .toList()
-                            : chartProvider.list,
+                        list: chartProvider.list,
                         currencySymbol: currencySymbol,
                         onDelete: (id) => context
                             .read<ExpenseAndIncomeChart>()
@@ -386,7 +386,6 @@ class _HomescreenState extends State<Homescreen> {
                     duration: const Duration(milliseconds: 350),
                   ),
             ),
-
           ),
         ),
       ),
@@ -426,7 +425,7 @@ class _HomescreenState extends State<Homescreen> {
     );
     if (datetime != null) {
       setState(() {
-        _selectedDate = datetime.toString().split(' ')[0];
+        selectedDate = datetime;
         time = DateFormat('dd MMM yyyy').format(datetime);
       });
     }
@@ -454,7 +453,6 @@ class _HomescreenState extends State<Homescreen> {
     // Restore home screen state when returning
     if (mounted) {
       setState(() {
-        _selectedDate = null;
         time = DateFormat('dd MMM yyyy').format(now);
       });
       await context.read<ExpenseAndIncomeChart>().searchByMonth(_currentMonth);
@@ -477,8 +475,8 @@ class _RecentTransactionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sortedList = [...list]..sort((a, b) => b.date.compareTo(a.date));
-    final recentList = sortedList.take(6).toList();
+    final sortedList = [...list]..sort(_sortNewestFirst);
+    final recentList = sortedList.take(5).toList();
 
     if (recentList.isEmpty) {
       return Padding(
@@ -541,7 +539,9 @@ class _RecentTransactionList extends StatelessWidget {
               ),
             );
           },
-          onDismissed: (_) { if (item.id != null) onDelete(item.id!); },
+          onDismissed: (_) {
+            if (item.id != null) onDelete(item.id!);
+          },
           child: ListTile(
             subtitle: Text(formattedDate),
             leading: Container(
@@ -570,5 +570,16 @@ class _RecentTransactionList extends StatelessWidget {
         );
       },
     );
+  }
+
+  int _sortNewestFirst(Chartdata a, Chartdata b) {
+    final bDate = DateTime.tryParse(b.updatedAt ?? b.date);
+    final aDate = DateTime.tryParse(a.updatedAt ?? a.date);
+
+    if (aDate == null && bDate == null) return b.date.compareTo(a.date);
+    if (aDate == null) return 1;
+    if (bDate == null) return -1;
+
+    return bDate.compareTo(aDate);
   }
 }

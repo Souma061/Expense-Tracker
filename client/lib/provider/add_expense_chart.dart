@@ -36,9 +36,10 @@ class ExpenseAndIncomeChart extends ChangeNotifier {
     required double amount,
     required String currencySymbol,
     required bool isExpense,
+    required DateTime date,
   }) async {
     final now = _now();
-    final nowDate = DateTime.now();
+    final nowDate = date; // Use the provided date instead of DateTime.now()
     final dateStr = nowDate.toIso8601String().split('T')[0]; // 'yyyy-MM-dd'
 
     Chartdata data = Chartdata(
