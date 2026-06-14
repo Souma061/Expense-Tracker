@@ -1,7 +1,7 @@
 import 'package:expense_tracker/apis/auth_services.dart';
 import 'package:expense_tracker/core/validators/validator.dart';
+import 'package:expense_tracker/screens/hidden_drawer.dart';
 import 'package:expense_tracker/screens/login_screen.dart';
-import 'package:expense_tracker/screens/otp_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -185,7 +185,6 @@ class _RegisterscreenState extends State<Registerscreen> {
   }
 
   Future<void> _register() async {
-    FocusScope.of(context).unfocus();
     if (!formKey.currentState!.validate()) return;
 
     final email = emailController.text.trim();
@@ -205,7 +204,7 @@ class _RegisterscreenState extends State<Registerscreen> {
 
     Navigator.pop(context);
     if (success['success'] == true) {
-      _nextScreen(email);
+      _nextScreen();
     } else {
       _showerror(
         success['message'] ?? success['error'] ?? 'Registration failed',
@@ -220,20 +219,14 @@ class _RegisterscreenState extends State<Registerscreen> {
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => Loginscreen(),
-        transitionDuration: const Duration(milliseconds: 320),
-        reverseTransitionDuration: const Duration(milliseconds: 260),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          final curved = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeInOutCubic,
-          );
           return FadeTransition(
-            opacity: curved,
+            opacity: animation,
             child: SlideTransition(
               position: Tween<Offset>(
-                begin: const Offset(-0.18, 0.0),
+                begin: const Offset(1.0, 0.0),
                 end: Offset.zero,
-              ).animate(curved),
+              ).animate(animation),
               child: child,
             ),
           );
@@ -242,17 +235,16 @@ class _RegisterscreenState extends State<Registerscreen> {
     );
   }
 
-  void _nextScreen(String email) {
+  void _nextScreen() {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) {
-          return OtpScreen(email: email.trim());
+          return Hiddendrawer();
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          final curved = CurvedAnimation(parent: animation, curve: Curves.ease);
           return FadeTransition(
-            opacity: curved,
+            opacity: animation,
             child: SlideTransition(
               position: Tween<Offset>(
                 begin: const Offset(1.0, 0.0),
@@ -291,12 +283,6 @@ class _RegisterscreenState extends State<Registerscreen> {
   }
 
   void _showerror(String error) {
-    FocusScope.of(context).unfocus();
-    firstNameController.clear();
-    lastNameController.clear();
-    emailController.clear();
-    passwordController.clear();
-    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         dismissDirection: DismissDirection.horizontal,

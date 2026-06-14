@@ -6,8 +6,7 @@ import 'package:provider/provider.dart';
 class Expensepage extends StatefulWidget {
   /// Called after a successful submit so the parent (e.g. bottom sheet) can close.
   final VoidCallback? onSubmitted;
-  final DateTime dateTime;
-  const Expensepage({super.key, this.onSubmitted, required this.dateTime});
+  const Expensepage({super.key, this.onSubmitted});
 
   @override
   State<Expensepage> createState() => _ExpensepageState();
@@ -187,7 +186,6 @@ class _ExpensepageState extends State<Expensepage> {
                     amount: double.tryParse(amountController.text) ?? 0.0,
                     isExpense: true,
                     currencySymbol: selectedCurrency.symbol,
-                    date: widget.dateTime,
                   );
                   formKey.currentState!.reset();
                   FocusScope.of(context).unfocus();
